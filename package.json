@@ -1,0 +1,14 @@
+{
+  "name": "findingdev",
+  "version": "1.0.0",
+  "description": "A backend for findingdev",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Atharv sinha",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
