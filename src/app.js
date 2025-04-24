@@ -3,8 +3,8 @@ const express = require("express");
 const app = express();
 
 
-app.use("/test",(req,res) => {
-  res.send('Request is running on server');
+app.get("/",(req,res) => {
+  res.send("Hey there");
 })
 const PORT = 4000;
 
