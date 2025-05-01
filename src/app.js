@@ -74,6 +74,38 @@ app.get("/getbyid/:id",async(req,res) => {
     res.status(400).send("An error occurred")
     console.log(err.message);    
   }
+});
+
+app.delete("/deletebyid/:id",async(req,res)=>{
+  const userId = req.params.id;
+ 
+  try{
+    const userDelte = await User.findByIdAndDelete(userId);
+  
+  if(!userDelte){
+    res.status(400).send("User not found");
+  }
+  else{
+    res.send("User deleted successfully");
+  }
+  } catch(err){
+    res.status(400).send("An error occurred");
+    console.log(err.message);   
+  }  
+});
+
+app.patch("/updatebyid/:id",async (req,res) => {
+  const userId = req.params.id;
+  const data = req.body;
+
+  try{
+   const userUpdate = await User.findByIdAndUpdate(userId,data);
+
+   res.send("User updated successfully");
+  } catch(err){
+    res.status(200).send("Something went wrong");
+     console.log(err.message);    
+  }
 })
 
 
