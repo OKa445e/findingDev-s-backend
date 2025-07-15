@@ -1,13 +1,14 @@
 const express = require("express");
-const bcrypt = require("bcryptjs");
 const connectDB = require("./config/database.js");
 const User = require("./models/user.js");
 const { validateSignupData } = require("./utils/validation.js");
-
+const { userauth } = require("./middleware/auth.js");
+const bcrypt = require("bcryptjs");
+const cookieParser = require("cookie-parser");
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
-// ✅ Signup Route
 app.post("/signup", async (req, res) => {
   try {
     await validateSignupData(req);
@@ -35,7 +36,6 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-// ✅ Login Route
 app.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
@@ -45,93 +45,36 @@ app.post("/login", async (req, res) => {
       return res.status(400).send("Invalid credentials");
     }
 
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    const isPasswordMatch = await user.validatePassword(password);
     if (!isPasswordMatch) {
       return res.status(400).send("Invalid credentials");
     }
+    const token = await user.getJWT();
 
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 7 * 3600000),
+    });
     res.status(200).send("Login Successful");
   } catch (err) {
     res.status(400).send("An error occurred: " + err.message);
   }
 });
 
-// ✅ Get User by Email
-app.get("/user", async (req, res) => {
-  const userEmail = req.body.emailId;
+app.get("/profile", userauth, async (req, res) => {
   try {
-    const user = await User.findOne({ emailId: userEmail });
-    if (!user) {
-      return res.status(400).send("User doesn't exist");
-    }
+    const user = req.user;
     res.send(user);
   } catch (err) {
     res.status(400).send("An error occurred: " + err.message);
   }
 });
 
-// ✅ Get All Users
-app.get("/feed", async (req, res) => {
+app.get("/connectionRequest", userauth, async (req, res) => {
+  const user = req.user;
   try {
-    const users = await User.find({});
-    if (users.length === 0) {
-      return res.status(400).send("No users found");
-    }
-    res.send(users);
+    res.send(user.name + " " + "sent the connection request");
   } catch (err) {
     res.status(400).send("An error occurred: " + err.message);
-  }
-});
-
-// ✅ Get by ID
-app.get("/getbyid/:id", async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(400).send("User not found");
-    res.send(user);
-  } catch (err) {
-    res.status(400).send("An error occurred: " + err.message);
-  }
-});
-
-// ✅ Delete User by ID
-app.delete("/deletebyid/:id", async (req, res) => {
-  try {
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
-    if (!deletedUser) return res.status(400).send("User not found");
-    res.send("User deleted successfully");
-  } catch (err) {
-    res.status(400).send("An error occurred: " + err.message);
-  }
-});
-
-// ✅ Update User by ID
-app.patch("/updatebyid/:id", async (req, res) => {
-  const ALLOWED_UPDATES = ["photoUrl", "skills", "about", "password"];
-  const updates = Object.keys(req.body);
-  const isValidUpdate = updates.every((key) => ALLOWED_UPDATES.includes(key));
-
-  if (!isValidUpdate) {
-    return res.status(400).send("Invalid update fields");
-  }
-
-  if (req.body.skills && req.body.skills.length > 15) {
-    return res.status(400).send("Skills cannot be more than 15");
-  }
-
-  try {
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
-      runValidators: true,
-      new: true,
-    });
-
-    if (!updatedUser) {
-      return res.status(400).send("User not found");
-    }
-
-    res.send("User updated successfully");
-  } catch (err) {
-    res.status(400).send("Something went wrong: " + err.message);
   }
 });
 
