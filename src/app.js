@@ -9,10 +9,13 @@ app.use(cookieParser());
 const authRouter = require("./router/authRouter.js");
 const profileRouter = require("./router/profile.js");
 const requestRouter = require("./router/requests.js");
+const userRouter = require("./router/userRouter.js");
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
+app.use("/", userRouter);
+
 
 const PORT = 4000;
 connectDB()

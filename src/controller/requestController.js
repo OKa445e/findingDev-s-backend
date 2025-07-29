@@ -1,7 +1,7 @@
 const User = require("../models/user.js");
 const ConnectionRequest = require("../models/connectionRequest.js");
 
-const profileRequest = async (req, res) => {
+const profileSender = async (req, res) => {
   try {
     const fromUserId = req.user._id;
     const toUserId = req.params.toUserId;
@@ -48,12 +48,61 @@ const profileRequest = async (req, res) => {
     }
 
     return res.json({
-     message:  actionMessage,
-     data
-    })
+      message: actionMessage,
+      data,
+    });
   } catch (err) {
     res.status(400).send("ERROR: " + err.message);
   }
 };
 
-module.exports = { profileRequest };
+const profileReceiver = async(req,res) => {
+   try{
+    const loggedInUser = req.user;
+    const {status,requestId} = req.params;
+
+    const allowedStatus = ["accepted","rejected"];
+
+    if(!allowedStatus.includes(status)){
+      return res.status(400).json({
+        message: "Invalid status type " + status
+      })
+    };
+
+    const connectionRequest = await ConnectionRequest.findOne({
+      _id:requestId,
+      toUserId:loggedInUser._id,
+      status: "interested"
+    });
+    if(!connectionRequest){
+      return res.status(400).json({
+        message: "Invalid connection request"
+      })
+    };
+
+    const sender = await User.findById(connectionRequest.fromUserId);
+
+    connectionRequest.status = status;
+
+    const data = await connectionRequest.save();
+
+    
+    let actionMessage = "";
+    if (status === "accepted") {
+      actionMessage = `You accepted the connection request from user ${sender?.name}`;
+    } else {
+      actionMessage = `You rejected the connection request from user ${sender?.name}`;
+    }
+
+    return res.json({
+      message: actionMessage,
+      data,
+    });
+
+   }catch(err) {
+    res.status(400).send("An error occurred: " + err.message);
+  }
+}
+
+
+module.exports = { profileSender, profileReceiver };
