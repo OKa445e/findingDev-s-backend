@@ -79,7 +79,9 @@ const userFeed = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    res.send(users);
+    res.json({
+      data: users,
+    });
   } catch (err) {
     res.status(400).send("An error occurred: " + err.message);
   }
