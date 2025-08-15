@@ -2,21 +2,37 @@ const express = require("express");
 const connectDB = require("./config/database.js");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const passport = require("./middleware/googleAuth.js");
+const session  = require("express-session");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const app = express();
 app.use(cors({
-  origin: "http://localhost:5173/",
-  credentials: true,
+  origin: "http://localhost:5173",  
+  credentials: true
 }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true
 
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get("/",(req,res)=>{
+  res.send("Backend is ruunning");
+})
 const authRouter = require("./router/authRouter.js");
 const profileRouter = require("./router/profile.js");
 const requestRouter = require("./router/requests.js");
 const userRouter = require("./router/userRouter.js");
 
-app.use("/", authRouter);
+app.use("/auth", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);

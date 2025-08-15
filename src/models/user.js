@@ -29,10 +29,12 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return this.provider === "local";
+      },
       minlength: [8, "Password must be at least 8 characters long"],
       validate(value) {
-        if (!validator.isStrongPassword(value)) {
+        if (this.provider === "local" && !validator.isStrongPassword(value)) {
           throw new Error(
             "Password must be strong (include uppercase, lowercase, number, and symbol)"
           );
@@ -66,6 +68,14 @@ const userSchema = new mongoose.Schema(
         "Special characters not allowed in about section",
       ],
       maxlength: [200, "About section must be less than 200 characters"],
+    },
+    provider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+    providerId: {
+      type: String,
     },
   },
   {

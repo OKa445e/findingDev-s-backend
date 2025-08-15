@@ -2,11 +2,12 @@ const User = require("../models/user.js");
 const { validateSignupData } = require("../utils/validation.js");
 const bcrypt = require("bcryptjs");
 
-const signupAuth =  async (req, res) => {
+const signupAuth = async (req, res) => {
   try {
     await validateSignupData(req);
 
     const { name, emailId, password } = req.body;
+    // const photoUrl = req.file ? req.file.url : null;
 
     // Check if email already exists
     const existingUser = await User.findOne({ emailId });
@@ -20,14 +21,21 @@ const signupAuth =  async (req, res) => {
       name,
       emailId,
       password: hashPassword,
+      // photoUrl
     });
 
-    await user.save();
-    res.send("User created successfully");
+    const savedUser = await user.save();
+    const token = await savedUser.getJWT();
+
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 7 * 3600000),
+    });
+    res.json({ message: "User created successfully", data: savedUser });
   } catch (err) {
     res.status(400).send("An error occurred: " + err.message);
   }
-}
+};
+
 
 const loginAuth = async (req, res) => {
   try {
@@ -47,17 +55,18 @@ const loginAuth = async (req, res) => {
     res.cookie("token", token, {
       expires: new Date(Date.now() + 7 * 3600000),
     });
-    res.status(200).send("Login Successful");
+    res.status(200).send(user);
   } catch (err) {
     res.status(400).send("An error occurred: " + err.message);
   }
-}
+};
 
-const logoutAuth = async(req,res) => {
-   res.cookie("token",null,{
-    expires: new Date (Date.now()),
-   })
-   .send("Logout Successfully");
-}
+const logoutAuth = async (req, res) => {
+  res
+    .cookie("token", null, {
+      expires: new Date(Date.now()),
+    })
+    .send("Logout Successfully");
+};
 
-module.exports = {signupAuth,loginAuth,logoutAuth};
+module.exports = { signupAuth, loginAuth, logoutAuth };

@@ -21,11 +21,15 @@ const validateEditProfileData = (req) => {
     "gender",
   ];
 
-  const isEditAllowed = Object.keys(req.body).every((field) =>
+  // Check if all body fields are allowed
+  const bodyFieldsValid = Object.keys(req.body).every((field) =>
     allowedEditFields.includes(field)
   );
 
-  return isEditAllowed;
+  // If there's a file upload, it's also valid (file uploads don't add to req.body)
+  const hasValidFile = req.file && req.file.mimetype && req.file.mimetype.startsWith('image/');
+
+  return bodyFieldsValid && (req.body.name || hasValidFile);
 };
 
 module.exports = {
