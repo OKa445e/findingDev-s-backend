@@ -60,7 +60,7 @@ const webhookPayment = async(req,res) => {
       await payment.save();
 
 
-      const user = await User.findOne({_id: payment.order_id});
+      const user = await User.findOne({_id: payment.userId});
       user.isPremium = true;
       user.membershipType = payment.notes.membershipType;
 
