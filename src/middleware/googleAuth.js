@@ -23,7 +23,7 @@ passport.use(
             emailId: profile.emails[0].value,
             provider: "google",
             providerId: profile.id,
-            photoUrl: profile.photos[0].value,
+            photoUrl: profile.photos[0].value ||  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpwxCN33LtdMLbWdhafc4HxabqpaU0qVbDxQ&s"
           });
           await user.save();
         }

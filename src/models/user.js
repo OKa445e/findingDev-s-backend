@@ -77,6 +77,13 @@ const userSchema = new mongoose.Schema(
     providerId: {
       type: String,
     },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    membershipType: {
+      type: String,
+    }
   },
   {
     timestamps: true,
@@ -87,7 +94,7 @@ userSchema.methods.getJWT = async function () {
   const user = this;
   const token = await jwt.sign(
     { _id: user._id },
-    "f3b6a0e2a8f8caa2d11a6b8b14d1f9cc48e207fd5e9f9991c87e8f63cba221e5d901",
+    process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
 
@@ -106,3 +113,4 @@ userSchema.methods.validatePassword = async function (passwordByUser) {
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
+

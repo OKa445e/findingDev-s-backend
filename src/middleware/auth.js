@@ -10,7 +10,7 @@ const userauth = async (req, res, next) => {
     }
     const decodedObj = await jwt.verify(
       token,
-      "f3b6a0e2a8f8caa2d11a6b8b14d1f9cc48e207fd5e9f9991c87e8f63cba221e5d901"
+      process.env.JWT_SECRET
     );
 
     const { _id } = decodedObj;

@@ -1,6 +1,7 @@
 const User = require("../models/user.js");
 const ConnectionRequest = require("../models/connectionRequest.js");
 
+const sendEmail = require("../utils/sendEmail.js");
 const profileSender = async (req, res) => {
   try {
     const fromUserId = req.user._id;
@@ -39,6 +40,13 @@ const profileSender = async (req, res) => {
     });
 
     const data = await connectionRequest.save();
+
+    const emailRes = await sendEmail.run(
+      "New Connection Request", // subject
+      `You have a new connection request from ${req.user.name}`, // body
+      toUser.emailId // recipient email
+    );
+    console.log(emailRes);
 
     let actionMessage = "";
     if (status === "interested") {

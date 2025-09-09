@@ -5,6 +5,7 @@ const cors = require("cors");
 const passport = require("./middleware/googleAuth.js");
 const session  = require("express-session");
 const dotenv = require("dotenv");
+require("./utils/cronjobs.js");
 dotenv.config();
 
 const app = express();
@@ -31,14 +32,17 @@ const authRouter = require("./router/authRouter.js");
 const profileRouter = require("./router/profile.js");
 const requestRouter = require("./router/requests.js");
 const userRouter = require("./router/userRouter.js");
+const paymentRouter = require("./router/payment.js");
 
 app.use("/auth", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
+app.use("/",paymentRouter);
 
 
-const PORT = 4000;
+const PORT = process.env.PORT;
+
 connectDB()
   .then(() => {
     console.log("Database connected successfully");

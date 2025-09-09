@@ -21,7 +21,6 @@ const signupAuth = async (req, res) => {
       name,
       emailId,
       password: hashPassword,
-      // photoUrl
     });
 
     const savedUser = await user.save();

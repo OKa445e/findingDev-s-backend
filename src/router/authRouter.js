@@ -6,7 +6,6 @@ const {
 } = require("../controller/authController");
 const { userauth } = require("../middleware/auth");
 const passport = require("../middleware/googleAuth");
-const upload = require("../middleware/upload");
 
 const authRouter = express.Router();
 
