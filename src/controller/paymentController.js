@@ -72,6 +72,16 @@ const webhookPayment = async(req,res) => {
     res.status(400).send("An error occurred: " + err.message);
     console.log(err);
   }
-}
+};
 
-module.exports = { createOrderPayment,webhookPayment};
+const paymentVerification = async(req,res) => {
+  const user = req.user.toJSON();
+  if(user.isPremium){
+    return res.json({...user});
+  }
+  else{
+    return res.json({...user});
+  }
+};
+
+module.exports = { createOrderPayment,webhookPayment,paymentVerification};
